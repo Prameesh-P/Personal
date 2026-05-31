@@ -2,697 +2,1842 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <title>Prameesh-P</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prameesh P — Backend Developer Portfolio</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
-  
-  <!-- Favicons -->
-  <link href="assets/img/favicon.png" rel="icon">
-  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  <!-- Vendor CSS Files -->
-  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+    body {
+      background: #030805;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      color: #e0e7e3;
+      -webkit-font-smoothing: antialiased;
+    }
 
-  <!-- Template Main CSS File -->
-  <link href="assets/css/style.css" rel="stylesheet">
+    #canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
 
-  <!-- =======================================================
-  * Template Name: DevFolio - v4.9.1
-  * Template URL: https://bootstrapmade.com/devfolio-bootstrap-portfolio-html-template/
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
+    /* Cinematic vignette border */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.85);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    #hud {
+      position: fixed;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(8, 22, 14, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(197, 160, 89, 0.35);
+      border-radius: 50px;
+      padding: 12px 32px;
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(197, 160, 89, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    #hud span {
+      color: rgba(224, 231, 227, 0.6);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    #hud b {
+      color: #e4c275;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.05em;
+      text-shadow: 0 0 10px rgba(228, 194, 117, 0.3);
+    }
+
+    #audio-ctrl {
+      position: fixed;
+      top: 28px;
+      right: 28px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: rgba(8, 22, 14, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(197, 160, 89, 0.35);
+      color: #e4c275;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      transition: all 0.3s;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    #audio-ctrl:hover {
+      background: rgba(197, 160, 89, 0.2);
+      border-color: #e4c275;
+      transform: scale(1.05);
+    }
+
+    #controls {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .ctrl-key {
+      width: 48px;
+      height: 48px;
+      background: rgba(8, 22, 14, 0.8);
+      border: 1px solid rgba(197, 160, 89, 0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e0e7e3;
+      font-size: 20px;
+      backdrop-filter: blur(10px);
+      user-select: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .ctrl-key:hover {
+      background: rgba(197, 160, 89, 0.15);
+      border-color: #e4c275;
+      color: #fff;
+    }
+
+    .ctrl-key:active {
+      transform: scale(0.95);
+    }
+
+    #panel {
+      position: fixed;
+      right: -460px;
+      top: 0;
+      bottom: 0;
+      width: 440px;
+      background: rgba(5, 14, 9, 0.95);
+      backdrop-filter: blur(24px);
+      border-left: 2px solid rgba(197, 160, 89, 0.35);
+      padding: 48px 36px;
+      overflow-y: auto;
+      z-index: 200;
+      transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      scrollbar-width: thin;
+      scrollbar-color: #e4c275 transparent;
+      box-shadow: -15px 0 45px rgba(0, 0, 0, 0.6);
+    }
+
+    #panel.open {
+      right: 0;
+    }
+
+    #panel h2 {
+      color: #e4c275;
+      font-size: 28px;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.05em;
+      text-shadow: 0 0 15px rgba(228, 194, 117, 0.25);
+    }
+
+    #panel .subtitle {
+      color: rgba(224, 231, 227, 0.5);
+      font-size: 13px;
+      margin-bottom: 32px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-weight: 600;
+    }
+
+    #panel .tag {
+      display: inline-block;
+      background: rgba(197, 160, 89, 0.08);
+      color: #e4c275;
+      border: 1px solid rgba(197, 160, 89, 0.35);
+      border-radius: 4px;
+      padding: 5px 12px;
+      font-size: 12px;
+      margin: 4px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      transition: all 0.2s;
+    }
+
+    #panel .tag:hover {
+      background: rgba(197, 160, 89, 0.18);
+      border-color: #e4c275;
+    }
+
+    #panel .entry {
+      border-left: 2px solid rgba(197, 160, 89, 0.3);
+      padding-left: 20px;
+      margin-bottom: 28px;
+      transition: border-color 0.3s;
+    }
+
+    #panel .entry:hover {
+      border-color: #e4c275;
+    }
+
+    #panel .entry h3 {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.03em;
+    }
+
+    #panel .entry .date {
+      color: #e4c275;
+      font-size: 12px;
+      margin-bottom: 10px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    #panel .entry p {
+      color: rgba(224, 231, 227, 0.7);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    #panel .entry ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    #panel .entry li {
+      color: rgba(224, 231, 227, 0.7);
+      font-size: 13px;
+      line-height: 1.9;
+      padding-left: 20px;
+      position: relative;
+      margin-bottom: 6px;
+    }
+
+    #panel .entry li::before {
+      content: '✦';
+      position: absolute;
+      left: 0;
+      color: #e4c275;
+      font-size: 10px;
+      top: 1px;
+    }
+
+    #close-panel {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(197, 160, 89, 0.08);
+      border: 1px solid rgba(197, 160, 89, 0.25);
+      color: #e4c275;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      z-index: 10;
+    }
+
+    #close-panel:hover {
+      background: rgba(197, 160, 89, 0.25);
+      border-color: #e4c275;
+      transform: rotate(90deg);
+    }
+
+    #intro {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(10, 24, 16, 0.98) 0%, rgba(4, 8, 5, 1) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      text-align: center;
+      padding: 24px;
+      transition: opacity 1.0s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #intro h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(48px, 10vw, 104px);
+      color: #fff;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+      text-shadow: 0 0 30px rgba(255, 255, 255, 0.08);
+    }
+
+    #intro h1 span {
+      color: #e4c275;
+      text-shadow: 0 0 25px rgba(228, 194, 117, 0.35);
+    }
+
+    #intro .tagline {
+      color: rgba(224, 231, 227, 0.6);
+      font-size: clamp(12px, 1.8vw, 15px);
+      margin-bottom: 54px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    #intro .start-btn {
+      background: linear-gradient(135deg, #e4c275, #c5a059);
+      color: #051409;
+      border: none;
+      padding: 20px 60px;
+      border-radius: 50px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-family: 'Cinzel', serif;
+      box-shadow: 0 0 50px rgba(228, 194, 117, 0.2);
+      transition: all 0.3s;
+    }
+
+    #intro .start-btn:hover {
+      transform: scale(1.04);
+      box-shadow: 0 0 70px rgba(228, 194, 117, 0.45);
+      background: linear-gradient(135deg, #f7d993, #dcb76e);
+    }
+
+    #intro .hint {
+      color: rgba(224, 231, 227, 0.3);
+      font-size: 13px;
+      margin-top: 24px;
+      letter-spacing: 0.05em;
+    }
+
+    #tooltip {
+      position: fixed;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(8, 22, 14, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      border-radius: 30px;
+      padding: 12px 28px;
+      color: #e4c275;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s;
+      z-index: 100;
+      white-space: nowrap;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    #tooltip.show {
+      opacity: 1;
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- ======= Header ======= -->
-  <header id="header" class="fixed-top">
-    <div class="container d-flex align-items-center justify-content-between">
+  <div id="intro">
+    <h1>Prameesh <span>P</span></h1>
+    <div class="tagline">Backend Developer · Golang · Microservices · DevOps</div>
+    <button class="start-btn" onclick="startExperience()">🌿 Enter the Portfolio</button>
+    <div class="hint">Explore my professional journey</div>
+  </div>
 
-      <h1 class="logo"><a href="index.html">Pramee</a></h1>
-      <!-- Uncomment below if you prefer to use an image logo -->
-      <!-- <a href="index.html" class="logo"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
+  <div id="audio-ctrl" onclick="toggleAudio()" style="display:none" title="Toggle Sound">
+    <span id="audio-icon">🔇</span>
+  </div>
 
-      <nav id="navbar" class="navbar">
-        <ul>
-          <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
-          <li><a class="nav-link scrollto" href="#about">About</a></li>
-          <li><a class="nav-link scrollto" href="#services">Services</a></li>
-          <li><a class="nav-link scrollto " href="#work">Work</a></li>
-          <li><a class="nav-link scrollto" href="#contact">Contact</a></li>
-        </ul>
-        <i class="bi bi-list mobile-nav-toggle"></i>
-      </nav><!-- .navbar -->
+  <div id="hud" style="display:none">
+    <span>WASD / Arrows — Move</span>
+    <b id="zone-name">Explore the Forest</b>
+    <span>E — Interact</span>
+  </div>
 
-    </div>
-  </header><!-- End Header -->
+  <div id="tooltip"></div>
 
-  <!-- ======= Hero Section ======= -->
-  <div id="hero" class="hero route bg-image" style="background-image: url(mee.jpg)">
-    <div class="overlay-itro"></div>
-    <div class="hero-content display-table">
-      <div class="table-cell">
-        <div class="container">
-          <!--<p class="display-6 color-d">Hello, world!</p>-->
-          <h1 class="hero-title mb-4">I am Prameesh</h1>
-          <p class="hero-subtitle"><span class="typed" data-typed-items="Golang Developer,3D Animator,Graphic desinger"></span></p>
-          <!-- <p class="pt-3"><a class="btn btn-primary btn js-scroll px-4" href="#about" role="button">Learn More</a></p> -->
-        </div>
+  <div id="controls" style="display:none">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div class="ctrl-key" onmousedown="keys.w=true" onmouseup="keys.w=false"
+        ontouchstart="keys.w=true;event.preventDefault()" ontouchend="keys.w=false">▲</div>
+      <div style="display:flex;gap:8px">
+        <div class="ctrl-key" onmousedown="keys.a=true" onmouseup="keys.a=false"
+          ontouchstart="keys.a=true;event.preventDefault()" ontouchend="keys.a=false">◀</div>
+        <div class="ctrl-key" onmousedown="keys.s=true" onmouseup="keys.s=false"
+          ontouchstart="keys.s=true;event.preventDefault()" ontouchend="keys.s=false">▼</div>
+        <div class="ctrl-key" onmousedown="keys.d=true" onmouseup="keys.d=false"
+          ontouchstart="keys.d=true;event.preventDefault()" ontouchend="keys.d=false">▶</div>
       </div>
     </div>
-  </div><!-- End Hero Section -->
+    <div class="ctrl-key"
+      style="width:auto;padding:0 20px;font-size:14px;font-weight:700;color:#e4c275;font-family:'Cinzel',serif;"
+      onmousedown="tryInteract()">E</div>
+  </div>
 
-  <main id="main">
+  <div id="panel">
+    <button id="close-panel" onclick="closePanel()">✕</button>
+    <div id="panel-content"></div>
+  </div>
 
-    <!-- ======= About Section ======= -->
-    <section id="about" class="about-mf sect-pt4 route">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="box-shadow-full">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="row">
-                    <div class="col-sm-6 col-md-5">
-                      <div class="about-img">
-                        <img src="mee2.jpg" class="img-fluid rounded b-shadow-a" alt="">
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-7">
-                      <div class="about-info">
-                        <p><span class="title-s">Name: </span> <span>Prameesh P</span></p>
-                        <p><span class="title-s">Profile: </span> <span>Backend developer</span></p>
-                        <p><span class="title-s">Email: </span> <span>prameepramee0@gmail.com</span></p>
-                        <p><span class="title-s">Phone: </span> <span>+91 9744925264</span></p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="skill-mf">
-                    <p class="title-s">Skill</p>
-                    <span>Golang</span> <span class="pull-right">90%</span>
-                    <div class="progress">
-                      <div class="progress-bar" role="progressbar" style="width: 90%;" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <span>HTML</span> <span class="pull-right">90%</span>
-                    <div class="progress">
-                      <div class="progress-bar" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <span>CSS</span> <span class="pull-right">80%</span>
-                    <div class="progress">
-                      <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <span>Java Script</span> <span class="pull-right">50%</span>
-                    <div class="progress">
-                      <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="about-me pt-4 pt-md-0">
-                    <div class="title-box-2">
-                      <h5 class="title-left">
-                        About me
-                      </h5>
-                    </div>
-                    <p class="lead">
-                      Hi there! I'm Prameesh P, a passionate Golang developer .
-                      I have a strong understanding of computer science fundamentals and love to work with complex algorithms and data structures.
-                       My experience includes developing REST APIs, microservices, and distributed systems using Golang and other related technologies.
-                       I'm always looking to learn and improve my skills, and I enjoy keeping up with the latest industry trends and technologies.
-                    </p>
+  <canvas id="canvas"></canvas>
 
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section><!-- End About Section -->
 
-    <!-- ======= Services Section ======= -->
-    <section id="services" class="services-mf pt-5 route">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="title-box text-center">
-              <h3 class="title-a">
-                Services
-              </h3>
-             
-              <div class="line-mf"></div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="service-box">
-              <div class="service-ico">
-                <span class="ico-circle"><i class="bi bi-briefcase"></i></span>
-              </div>
-              <div class="service-content">
-                <h2 class="s-title">Web Developer</h2>
-                <p class="s-description text-center">
-                  Design, create and maintain websites, providing in the process a cohesive and 
-                  user-friendly online portal for the use of clients,
-                   customers, work colleagues and other interested parties
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="service-box">
-              <div class="service-ico">
-                <span class="ico-circle"><i class="bi bi-card-checklist"></i></span>
-              </div>
-              <div class="service-content">
-                <h2 class="s-title">UI/UX desinger</h2>
-                <p class="s-description text-center">
-                  I create the user interface for an app, website, or other interactive media.
-                   I'll use my creativity while applying color palettes based on
-                    what best fits into a our design conceptually.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="service-box">
-              <div class="service-ico">
-                <span class="ico-circle"><i class="bi bi-card-checklist"></i></span>
-              </div>
-              <div class="service-content">
-                <h2 class="s-title">Autocad</h2>
-                <p class="s-description text-center">
-                  I have worked as a freelance AutoCAD designer for 1.5 years.
-                  I possess the ability to create 2D blueprints of various structures,
-                   including buildings and other architectural designs.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="service-box">
-              <div class="service-ico">
-                <span class="ico-circle"><i class="bi bi-card-checklist"></i></span>
-              </div>
-              <div class="service-content">
-                <h2 class="s-title">Photoshop</h2>
-                <p class="s-description text-center">
-                  Photoshop to create visuals that align with preferences or brand,<br> I can also edit <br>videos and create animations.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="service-box">
-              <div class="service-ico">
-                <span class="ico-circle"><i class="bi bi-card-checklist"></i></span>
-              </div>
-              <div class="service-content">
-                <h2 class="s-title">Software</h2>
-                <p class="s-description text-center">
-                  Producing efficient and elegant code based on requirements. Testing and deploying programs and applications.
-                   Troubleshooting, debugging, maintaining and improving existing software.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="service-box">
-              <div class="service-ico">
-                <span class="ico-circle"><i class="bi bi-bar-chart"></i></span>
-              </div>
-              <div class="service-content">
-                <h2 class="s-title">3D developer</h2>
-                <p class="s-description text-center">
-                  I have 1.5 years of experience working as a
-                   freelancer 3D developer on 3ds Max and <br>am proficient in 
-                   creating 3D buildings and other models.
-                </p>
-              </div>
-            </div>
-          </div>
-      </div>
-    </section><!-- End Services Section -->
-
-    <!-- ======= Counter Section ======= -->
-    <div class="section-counter paralax-mf bg-image" style="background-image: url(assets/img/counters-bg.jpg)">
-      <div class="overlay-mf"></div>
-      <div class="container position-relative">
-        <div class="row">
-          <div class="col-sm-3 col-lg-3">
-            <div class="counter-box counter-box pt-4 pt-md-0">
-              <div class="counter-ico">
-                <span class="ico-circle"><i class="bi bi-check"></i></span>
-              </div>
-              <div class="counter-num">
-                <p data-purecounter-start="0" data-purecounter-end="44" data-purecounter-duration="1" class="counter purecounter"></p>
-                <span class="counter-text">WORKS COMPLETED</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-3 col-lg-3">
-            <div class="counter-box pt-4 pt-md-0">
-              <div class="counter-ico">
-                <span class="ico-circle"><i class="bi bi-journal-richtext"></i></span>
-              </div>
-              <div class="counter-num">
-                <p data-purecounter-start="0" data-purecounter-end="02" data-purecounter-duration="1" class="counter purecounter"></p>
-                <span class="counter-text">YEARS OF EXPERIENCE</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-3 col-lg-3">
-            <div class="counter-box pt-4 pt-md-0">
-              <div class="counter-ico">
-                <span class="ico-circle"><i class="bi bi-people"></i></span>
-              </div>
-              <div class="counter-num">
-                <p data-purecounter-start="0" data-purecounter-end="34" data-purecounter-duration="1" class="counter purecounter"></p>
-                <span class="counter-text">TOTAL CLIENTS</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-3 col-lg-3">
-            <div class="counter-box pt-4 pt-md-0">
-              <div class="counter-ico">
-                <span class="ico-circle"><i class="bi bi-award"></i></span>
-              </div>
-              <div class="counter-num">
-                <p data-purecounter-start="0" data-purecounter-end="0" data-purecounter-duration="1" class="counter purecounter"></p>
-                <span class="counter-text">AWARD WON</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div><!-- End Counter Section -->
-
-    <!-- ======= Portfolio Section ======= -->
-    <section id="work" class="portfolio-mf sect-pt4 route">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="title-box text-center">
-              <h3 class="title-a">
-                Portfolio
-              </h3>
-              <div class="line-mf"></div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-      
-          <div class="col-md-4">
-            <div class="work-box">
-              <a href="https://hometree.ml/user" data-gallery="portfolioGallery" class="portfolio-lightbox">
-                <div class="work-img">
-                  <img src="assets/img/shoprix.png" alt="" class="img-fluid">
-                </div>
-              </a>
-              <div class="work-content">
-                <div class="row">
-                  <div class="col-sm-8">
-                    <h2 class="w-title">shoprix</h2>
-                    <div class="w-more">
-                      <span class="w-ctegory">Complete E-commerce api</span>  <span class="w-date"></span>
-                    </div>
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="w-like">
-                      <!-- <a href="portfolio-details.html"> <span class="bi bi-plus-circle"></span></a> -->
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="work-box">
-              <a href="zomato.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox">
-                <div class="work-img">
-                  <img src="zomato.jpg" alt="" class="img-fluid">
-                </div>
-              </a>
-              <div class="work-content">
-                <div class="row">
-                  <div class="col-sm-8">
-                    <h2 class="w-title">Zomato</h2>
-                    <div class="w-more">
-                      <span class="w-ctegory">Responsive Web Design</span> / <span class="w-date">15 Oct. 2022</span>
-                    </div>
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="w-like">
-                      <!-- <a href="portfolio-details.html"> <span class="bi bi-plus-circle"></span></a> -->
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="work-box">
-              <a href="tesla.png" data-gallery="portfolioGallery" class="portfolio-lightbox">
-                <div class="work-img">
-                  <img src="tesla.png" alt="" class="img-fluid">
-                </div>
-              </a>
-              <div class="work-content">
-                <div class="row">
-                  <div class="col-sm-8">
-                    <h2 class="w-title">Tesla</h2>
-                    <div class="w-more">
-                      <span class="w-ctegory">Clone Web Design</span> / <span class="w-date">09 Oct. 2022</span>
-                    </div>
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="w-like">
-                      <!-- <a href="portfolio-details.html"> <span class="bi bi-plus-circle"></span></a> -->
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section><!-- End Portfolio Section -->
-
-    <!-- ======= Testimonials Section ======= -->
-    <!-- <div class="testimonials paralax-mf bg-image" style="background-image: url(assets/img/overlay-bg.jpg)">
-      <div class="overlay-mf"></div>
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-
-            <div class="testimonials-slider swiper" data-aos="fade-up" data-aos-delay="100">
-              <div class="swiper-wrapper">
-
-                <div class="swiper-slide">
-                  <div class="testimonial-box">
-                    <div class="author-test">
-                      <img src="assets/img/testimonial-2.jpg" alt="" class="rounded-circle b-shadow-a">
-                      <span class="author">Xavi Alonso</span>
-                    </div>
-                    <div class="content-test">
-                      <p class="description lead">
-                        Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Lorem ipsum dolor sit amet,
-                        consectetur adipiscing elit.
-                      </p>
-                    </div>
-                  </div> -->
-                </div><!-- End testimonial item -->
-
-                <!-- <div class="swiper-slide">
-                  <div class="testimonial-box">
-                    <div class="author-test">
-                      <img src="assets/img/testimonial-4.jpg" alt="" class="rounded-circle b-shadow-a">
-                      <span class="author">Marta Socrate</span>
-                    </div>
-                    <div class="content-test">
-                      <p class="description lead">
-                        Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Lorem ipsum dolor sit amet,
-                        consectetur adipiscing elit.
-                      </p>
-                    </div>
-                  </div> -->
-                </div><!-- End testimonial item -->
-              </div>
-              <div class="swiper-pagination"></div>
-            </div>
-
-            <!-- <div id="testimonial-mf" class="owl-carousel owl-theme">
-          
-        </div> -->
-          </div>
-        </div>
-      </div>
-    </div><!-- End Testimonials Section -->
-
-    <!-- ======= Blog Section ======= -->
-    <!-- <section id="blog" class="blog-mf sect-pt4 route">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="title-box text-center">
-              <h3 class="title-a">
-                Blog
-              </h3>
-              <div class="line-mf"></div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="card card-blog">
-              <div class="card-img">
-                <a href="blog-single.html"><img src="assets/img/post-1.jpg" alt="" class="img-fluid"></a>
-              </div>
-              <div class="card-body">
-                <div class="card-category-box">
-                  <div class="card-category">
-                    <h6 class="category">Travel</h6>
-                  </div>
-                </div>
-                <h3 class="card-title"><a href="blog-single.html">See more ideas about Travel</a></h3>
-                <p class="card-description">
-                  Proin eget tortor risus. Pellentesque in ipsum id orci porta dapibus. Praesent sapien massa, convallis
-                  a pellentesque nec,
-                  egestas non nisi.
-                </p>
-              </div>
-              <div class="card-footer">
-                <div class="post-author">
-                  <a href="#">
-                    <img src="assets/img/testimonial-2.jpg" alt="" class="avatar rounded-circle">
-                    <span class="author">Morgan Freeman</span>
-                  </a>
-                </div>
-                <div class="post-date">
-                  <span class="bi bi-clock"></span> 10 min
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card card-blog">
-              <div class="card-img">
-                <a href="blog-single.html"><img src="assets/img/post-2.jpg" alt="" class="img-fluid"></a>
-              </div>
-              <div class="card-body">
-                <div class="card-category-box">
-                  <div class="card-category">
-                    <h6 class="category">Web Design</h6>
-                  </div>
-                </div>
-                <h3 class="card-title"><a href="blog-single.html">See more ideas about Travel</a></h3>
-                <p class="card-description">
-                  Proin eget tortor risus. Pellentesque in ipsum id orci porta dapibus. Praesent sapien massa, convallis
-                  a pellentesque nec,
-                  egestas non nisi.
-                </p>
-              </div>
-              <div class="card-footer">
-                <div class="post-author">
-                  <a href="#">
-                    <img src="assets/img/testimonial-2.jpg" alt="" class="avatar rounded-circle">
-                    <span class="author">Morgan Freeman</span>
-                  </a>
-                </div>
-                <div class="post-date">
-                  <span class="bi bi-clock"></span> 10 min
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card card-blog">
-              <div class="card-img">
-                <a href="blog-single.html"><img src="assets/img/post-3.jpg" alt="" class="img-fluid"></a>
-              </div>
-              <div class="card-body">
-                <div class="card-category-box">
-                  <div class="card-category">
-                    <h6 class="category">Web Design</h6>
-                  </div>
-                </div>
-                <h3 class="card-title"><a href="blog-single.html">See more ideas about Travel</a></h3>
-                <p class="card-description">
-                  Proin eget tortor risus. Pellentesque in ipsum id orci porta dapibus. Praesent sapien massa, convallis
-                  a pellentesque nec,
-                  egestas non nisi.
-                </p>
-              </div>
-              <div class="card-footer">
-                <div class="post-author">
-                  <a href="#">
-                    <img src="assets/img/testimonial-2.jpg" alt="" class="avatar rounded-circle">
-                    <span class="author">Morgan Freeman</span>
-                  </a>
-                </div>
-                <div class="post-date">
-                  <span class="bi bi-clock"></span> 10 min
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>End Blog Section -->
-
-    <!-- ======= Contact Section ======= -->
-    <section id="contact" class="paralax-mf footer-paralax bg-image sect-mt4 route" style="background-image: url(assets/img/overlay-bg.jpg)">
-      <div class="overlay-mf"></div>
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="contact-mf">
-              <div id="contact" class="box-shadow-full">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="title-box-2">
-                      <h5 class="title-left">
-                        Send Message Us
-                      </h5>
-                    </div>
-                    <div>
-                      <form id="submit-form" role="form" action="" >
-                        <div class="row">
-                          <div class="col-md-12 mb-3">
-                            <div class="form-group">
-                              <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" required>
-                            </div>
-                          </div>
-                          <div class="col-md-12 mb-3">
-                            <div class="form-group">
-                              <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required>
-                            </div>
-                          </div>
-                          <div class="col-md-12 mb-3">
-                            <div class="form-group">
-                              <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" required>
-                            </div>
-                          </div>
-                          <div class="col-md-12">
-                            <div class="form-group">
-                              <textarea class="form-control" name="message" rows="5" placeholder="Message" required></textarea>
-                            </div>
-                          </div>
-                          <div class="col-md-12 text-center my-3">
-                            <div class="loading">Loading</div>
-                            <div class="error-message"></div>
-                            <div class="sent-message">Your message has been sent. Thank you!</div>
-                          </div>
-                          <div class="col-md-12 text-center">
-                            <button type="submit" class="button button-a button-big button-rouded">Send Message</button>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="title-box-2 pt-4 pt-md-0">
-                      <h5 class="title-left">
-                        Get in Touch
-                      </h5>
-                    </div>
-                    <div class="more-info">
-                      <!-- <p class="lead">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis dolorum dolorem soluta quidem
-                        expedita aperiam aliquid at.
-                        Totam magni ipsum suscipit amet? Autem nemo esse laboriosam ratione nobis
-                        mollitia inventore?
-                      </p> -->
-                      <ul class="list-ico">
-                        <li><span class="bi bi-geo-alt"></span> 670307 Kannur, Kerala</li>
-                        <li><span class="bi bi-phone"></span>(91) 97449252264</li>
-                        <li><span class="bi bi-envelope"></span> prameepramee0@gmail.com</li>
-                      </ul>
-                    </div>
-                    <div class="socials">
-                      <ul>
-                        <li><a href=""><span class="ico-circle"><i class="bi bi-facebook"></i></span></a></li>
-                        <li><a href=""><span class="ico-circle"><i class="bi bi-instagram"></i></span></a></li>
-                        <li><a href=""><span class="ico-circle"><i class="bi bi-twitter"></i></span></a></li>
-                        <li><a href=""><span class="ico-circle"><i class="bi bi-linkedin"></i></span></a></li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section><!-- End Contact Section -->
-
-  </main><!-- End #main -->
-
-  <!-- ======= Footer ======= -->
-  <!-- <footer>
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="copyright-box">
-            <p class="copyright">&copy; Copyright <strong>DevFolio</strong>. All Rights Reserved</p>
-            <div class="credits">
-              
-              All the links in the footer should remain intact.
-              You can delete the links only if you purchased the pro version.
-              Licensing information: https://bootstrapmade.com/license/
-              Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=DevFolio
-           
-              Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>End  Footer -->
-
-  <div id="preloader"></div>
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-  <!-- Vendor JS Files -->
-  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
-  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
-  <script src="assets/vendor/typed.js/typed.min.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
-
-  <!-- Template Main JS File -->
-  <script src="assets/js/main.js"></script>
   <script>
-    $("#submit-form").submit((e)=>{
-        e.preventDefault()
-        $.ajax({
-            url:"https://script.google.com/macros/s/AKfycbw6TSPhti7ujWPWbugh5fpNG5MZzJTxEAzhd52AH-BHyVMTMC4dWTHFCMGPh7_6OKXd/exec",
-            data:$("#submit-form").serialize(),
-            method:"post",
-            success:function (response){
-                alert("Form submitted successfully")
-                window.location.reload()
-                //window.location.href="https://google.com"
-            },
-            error:function (err){
-                alert("Something Error")
+    // ─── Data ───────────────────────────────────────────────────────────────────
+    const ZONE_DATA = {
+      profile: {
+        color: 0x4fffb0, title: 'Profile',
+        html: `<h2>About Me</h2><div class="subtitle">Results-driven Backend Developer</div>
+    <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.8;margin-bottom:20px">
+    Results-driven Golang Backend Developer with experience building microservices, integrating APIs,
+    and managing cloud deployments. Skilled in Docker, PostgreSQL, Redis, and CI/CD.
+    Able to work independently or in teams, quickly adapt to new technologies,
+    and deliver scalable backend solutions under tight deadlines.
+    </p>
+    <div style="margin-bottom:16px">
+      <div class="tag">📧 prameepramee0@gmail.com</div>
+      <div class="tag">📱 +91 9744925264</div>
+    </div>
+    <div><div class="tag">🌐 Portfolio</div><div class="tag">GitHub</div><div class="tag">LinkedIn</div></div>`
+      },
+      skills: {
+        color: 0x00bfff, title: 'Skills',
+        html: `<h2>Skills</h2><div class="subtitle">Technical Arsenal</div>
+    <div class="entry"><h3>Programming</h3><div class="date">Proficient</div>
+    <div><div class="tag">Golang</div><div class="tag">SQL</div><div class="tag">DevOps</div>
+    <div class="tag">Microservices</div><div class="tag">Docker</div><div class="tag">UIPath</div><div class="tag">Mendix</div></div></div>
+    <div class="entry"><h3>Libraries</h3>
+    <div><div class="tag">Bootstrap</div><div class="tag">SMTP</div><div class="tag">JWT</div><div class="tag">Twilio</div></div></div>
+    <div class="entry"><h3>Frameworks</h3>
+    <div><div class="tag">GIN</div><div class="tag">Gorilla Mux</div><div class="tag">NGINX</div></div></div>
+    <div class="entry"><h3>Databases</h3>
+    <div><div class="tag">MySQL</div><div class="tag">Redis</div><div class="tag">PostgreSQL</div><div class="tag">MongoDB</div></div></div>
+    <div class="entry"><h3>Tools & Platforms</h3>
+    <div><div class="tag">Postman</div><div class="tag">AWS</div><div class="tag">Figma</div><div class="tag">Git</div><div class="tag">Photoshop</div></div></div>`
+      },
+      experience: {
+        color: 0xffd700, title: 'Experience',
+        html: `<h2>Experience</h2><div class="subtitle">My Career Journey</div>
+    <div class="entry"><h3>TechMojo Solutions</h3><div class="date">Member of Technical Staff · July 2025 – Present</div>
+    <ul><li>Developing Golang backend services for a Malaysian e-commerce platform</li>
+    <li>Worked with gRPC, Elasticsearch, and DevOps practices</li></ul></div>
+    <div class="entry"><h3>Indium Software</h3><div class="date">Software Engineer · April 2024 – July 2025</div>
+    <ul><li>Worked on LLM initiatives with prompt engineering and response evaluation</li>
+    <li>Analyzed prompt-response datasets to improve AI model performance</li></ul></div>
+    <div class="entry"><h3>X-TentionCrew Technologies Pvt. Ltd.</h3><div class="date">Software Developer · Sep 2023 – Apr 2024</div>
+    <ul><li>Built scalable Golang backend systems and handled cloud deployments</li>
+    <li>Improved response time by 35% through query optimization and indexing</li></ul></div>
+    <div class="entry"><h3>3D Animation and Development</h3><div class="date">November 2019 – May 2021</div>
+    <ul><li>Freelance 3D animation and digital content creation</li></ul></div>`
+      },
+      projects: {
+        color: 0xff6b35, title: 'Projects',
+        html: `<h2>Projects</h2><div class="subtitle">What I Built</div>
+    <div class="entry"><h3>Shoprix — E-Commerce API</h3>
+    <div class="date">Golang · PostgreSQL · Docker · Razorpay · Redis · Kubernetes · gRPC · DevOps</div>
+    <ul><li>Modular e-commerce backend with OTP login (Twilio), Razorpay integration, gRPC-based auth</li>
+    <li>Automated deployment with Docker and CI/CD, full Swagger API docs</li></ul>
+    <div style="margin-top:12px"><div class="tag">🔗 shoprix-link</div></div></div>
+    <div class="entry"><h3>VideoStream — Chunk-Based Video Streaming API</h3>
+    <div class="date">Golang · net/http</div>
+    <ul><li>Lightweight video streaming API using HTTP Range headers for efficient chunked playback</li></ul>
+    <div style="margin-top:12px"><div class="tag">🔗 video-stream-link</div></div></div>`
+      },
+      education: {
+        color: 0xc084fc, title: 'Education',
+        html: `<h2>Education</h2><div class="subtitle">Academic Foundation</div>
+    <div class="entry"><h3>Bachelor of Computer Applications (BCA)</h3>
+    <div class="date">Mysore University, Karnataka · 2023 – 2026</div>
+    <p>Currently pursuing BCA with focus on software development and CS fundamentals.</p></div>
+    <div class="entry"><h3>Golang Development</h3>
+    <div class="date">Brototype · August 2022 – August 2023</div>
+    <p>Intensive Golang development training covering backend systems, APIs, and cloud deployment.</p></div>
+    <div class="entry"><h3>Higher Secondary — Computer Science</h3>
+    <div class="date">GHSS Mathil, Kannur, Kerala · 2020 – 2022</div>
+    <p>Computer Science stream with strong foundation in programming and mathematics.</p></div>`
+      }
+    };
 
-            }
-        })
-    })
-</script>
+    // ─── Audio ──────────────────────────────────────────────────────────────────
+    let audioCtx = null;
+    let windGainNode = null;
+    let audioEnabled = false;
 
+    function initAudio() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+      // Create wind sound buffer
+      const bufferSize = 4 * audioCtx.sampleRate;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      const whiteNoise = audioCtx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+      whiteNoise.loop = true;
+
+      const windFilter = audioCtx.createBiquadFilter();
+      windFilter.type = 'bandpass';
+      windFilter.Q.value = 1.5;
+
+      const lfo = audioCtx.createOscillator();
+      lfo.frequency.value = 0.04;
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 150;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(windFilter.frequency);
+      windFilter.frequency.value = 350;
+
+      windGainNode = audioCtx.createGain();
+      windGainNode.gain.value = 0.0;
+
+      whiteNoise.connect(windFilter);
+      windFilter.connect(windGainNode);
+      windGainNode.connect(audioCtx.destination);
+
+      lfo.start();
+      whiteNoise.start();
+    }
+
+    function toggleAudio() {
+      if (!audioCtx) initAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      audioEnabled = !audioEnabled;
+      const audioIcon = document.getElementById('audio-icon');
+
+      if (audioEnabled) {
+        audioIcon.textContent = '🔊';
+        windGainNode.gain.setTargetAtTime(0.08, audioCtx.currentTime, 1.5);
+      } else {
+        audioIcon.textContent = '🔇';
+        windGainNode.gain.setTargetAtTime(0.0, audioCtx.currentTime, 0.8);
+      }
+    }
+
+    function playChime(freq) {
+      if (!audioCtx || !audioEnabled || audioCtx.state === 'suspended') return;
+
+      const now = audioCtx.currentTime;
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      osc1.type = 'sine';
+      osc2.type = 'sine';
+
+      osc1.frequency.setValueAtTime(freq, now);
+      osc2.frequency.setValueAtTime(freq * 1.25, now); // major third
+
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.04, now + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 2.0);
+
+      const delay = audioCtx.createDelay(1.0);
+      delay.delayTime.value = 0.35;
+      const feedback = audioCtx.createGain();
+      feedback.gain.value = 0.35;
+
+      osc1.connect(gainNode);
+      osc2.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      gainNode.connect(delay);
+      delay.connect(feedback);
+      feedback.connect(delay);
+      feedback.connect(audioCtx.destination);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 2.5);
+      osc2.stop(now + 2.5);
+    }
+
+    // ─── State ──────────────────────────────────────────────────────────────────
+    const keys = { w: false, a: false, s: false, d: false, space: false };
+    let scene, camera, renderer, clock, character;
+    let zones = [], nearZone = null;
+    let panelOpen = false;
+    let camAngleH = 0;
+    let camAngleV = 0.15; // Vertical camera angle (pitch)
+    let isDragging = false, lastMX = 0, lastMY = 0;
+    let tooltipTimer = null;
+
+    // Jump state variables
+    let isJumping = false;
+    let velocityY = 0;
+    let jumpOffset = 0;
+    const gravity = -20;
+    const jumpForce = 8.0;
+
+    // ─── Boot ───────────────────────────────────────────────────────────────────
+    function startExperience() {
+      const intro = document.getElementById('intro');
+      intro.style.opacity = '0';
+      setTimeout(() => {
+        intro.style.display = 'none';
+        document.getElementById('hud').style.display = 'flex';
+        document.getElementById('audio-ctrl').style.display = 'flex';
+        document.getElementById('controls').style.display = 'flex';
+        buildWorld();
+        animate();
+        // Prompt sound initialization
+        toggleAudio(); // Turns it ON initially (or attempts to, user gesture already registered since they clicked "Enter the Forest" button)
+      }, 800);
+    }
+
+    // ─── World Helpers ──────────────────────────────────────────────────────────
+    function getTerrainHeight(x, z) {
+      // Layered sine/cosine functions to create organic hills and valleys
+      return Math.sin(x * 0.1) * 1.2 + Math.cos(z * 0.12) * 0.8 + Math.sin((x + z) * 0.05) * 1.5;
+    }
+
+    // ─── World ──────────────────────────────────────────────────────────────────
+    function buildWorld() {
+      clock = new THREE.Clock();
+
+      // Renderer
+      renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.95;
+
+      // Scene
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x040a07); // deep dark forest jade
+      scene.fog = new THREE.FogExp2(0x06140e, 0.018); // thicker mysterious mist
+
+      // Camera
+      camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 400);
+      camera.position.set(-30, 5, 10);
+
+      // Lights
+      scene.add(new THREE.AmbientLight(0x0d281a, 0.85)); // emerald bounce light
+      scene.add(new THREE.HemisphereLight(0x133824, 0x050f0a, 0.55));
+
+      const sun = new THREE.DirectionalLight(0xe4c275, 1.4); // soft golden moonlight/sun shafts
+      sun.position.set(35, 50, 15);
+      sun.castShadow = true;
+      sun.shadow.camera.left = -80; sun.shadow.camera.right = 80;
+      sun.shadow.camera.top = 60; sun.shadow.camera.bottom = -60;
+      sun.shadow.camera.far = 250;
+      sun.shadow.mapSize.set(2048, 2048);
+      scene.add(sun);
+
+      buildGround();
+      buildPath();
+      buildWater();
+      buildGodRays();
+      buildSpores();
+      buildTrees();
+      buildClouds();
+      buildBirds();
+      buildFireflies();
+      buildCharacter();
+      buildZones();
+      buildSpaceSky();
+      setupEvents();
+    }
+
+    // ─── Space Sky elements ──────────────────────────────────────────────────────
+    let earthMesh, moonMesh, marsMesh, saturnGroup, galaxyParticles;
+
+    function createEarthTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+
+      // Blue ocean base
+      ctx.fillStyle = '#0d47a1';
+      ctx.fillRect(0, 0, 512, 256);
+
+      // Draw green continents
+      ctx.fillStyle = '#1b5e20';
+      // South America
+      ctx.beginPath(); ctx.arc(150, 160, 42, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(170, 185, 28, 0, Math.PI * 2); ctx.fill();
+      // North America
+      ctx.beginPath(); ctx.arc(130, 85, 52, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(90, 75, 38, 0, Math.PI * 2); ctx.fill();
+      // Africa
+      ctx.fillStyle = '#33691e';
+      ctx.beginPath(); ctx.arc(280, 145, 48, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(300, 180, 28, 0, Math.PI * 2); ctx.fill();
+      // Eurasia
+      ctx.fillStyle = '#1b5e20';
+      ctx.beginPath(); ctx.arc(320, 75, 62, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(420, 65, 58, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(380, 105, 42, 0, Math.PI * 2); ctx.fill();
+      // Australia
+      ctx.beginPath(); ctx.arc(440, 185, 28, 0, Math.PI * 2); ctx.fill();
+
+      // White cloud overlays
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.beginPath(); ctx.arc(120, 90, 60, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(320, 80, 80, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(230, 160, 45, 0, Math.PI * 2); ctx.fill();
+
+      return new THREE.CanvasTexture(canvas);
+    }
+
+    function buildSpaceSky() {
+      // 1. Stars (upper hemisphere)
+      const count = 1600;
+      const starGeo = new THREE.BufferGeometry();
+      const pos = new Float32Array(count * 3);
+      const colors = [];
+
+      for (let i = 0; i < count; i++) {
+        const u = Math.random();
+        const v = Math.random();
+        const theta = u * 2.0 * Math.PI;
+        const phi = Math.acos(2.0 * v - 1.0);
+
+        const r = 260 + Math.random() * 50;
+        pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        pos[i * 3 + 1] = Math.abs(r * Math.sin(phi) * Math.sin(theta)) + 5; // keep above ground
+        pos[i * 3 + 2] = r * Math.cos(phi);
+
+        const rand = Math.random();
+        if (rand < 0.2) {
+          colors.push(0.85, 0.9, 1.0); // blue-white
+        } else if (rand < 0.35) {
+          colors.push(1.0, 0.95, 0.85); // warm-white
+        } else {
+          colors.push(1.0, 1.0, 1.0); // white
+        }
+      }
+      starGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      starGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+      const starMat = new THREE.PointsMaterial({
+        size: 0.55,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.95,
+        sizeAttenuation: true,
+        fog: false // bypass fog!
+      });
+      const stars = new THREE.Points(starGeo, starMat);
+      scene.add(stars);
+
+      // 2. Earth
+      const earthGeo = new THREE.SphereGeometry(15, 28, 28);
+      const earthMat = new THREE.MeshBasicMaterial({
+        map: createEarthTexture(),
+        fog: false
+      });
+      earthMesh = new THREE.Mesh(earthGeo, earthMat);
+      earthMesh.position.set(-65, 80, -210);
+      scene.add(earthMesh);
+
+      // 3. Moon (Orbiting Earth)
+      const moonGeo = new THREE.SphereGeometry(3.6, 16, 16);
+      const mPos = moonGeo.attributes.position;
+      for (let i = 0; i < mPos.count; i++) {
+        const nx = mPos.getX(i);
+        const ny = mPos.getY(i);
+        const nz = mPos.getZ(i);
+        const factor = 1.0 + Math.sin(nx * 2.5) * Math.cos(ny * 2.5) * 0.04;
+        mPos.setX(i, nx * factor);
+        mPos.setY(i, ny * factor);
+        mPos.setZ(i, nz * factor);
+      }
+      moonGeo.computeVertexNormals();
+      const moonMat = new THREE.MeshStandardMaterial({
+        color: 0x909090,
+        roughness: 0.95,
+        metalness: 0.05,
+        fog: false
+      });
+      moonMesh = new THREE.Mesh(moonGeo, moonMat);
+      moonMesh.position.set(-35, 95, -170);
+      scene.add(moonMesh);
+
+      // 4. Mars
+      const marsGeo = new THREE.SphereGeometry(7.0, 16, 16);
+      const marsMat = new THREE.MeshStandardMaterial({
+        color: 0xc1440e,
+        roughness: 0.85,
+        metalness: 0.15,
+        fog: false
+      });
+      marsMesh = new THREE.Mesh(marsGeo, marsMat);
+      marsMesh.position.set(80, 90, -190);
+      scene.add(marsMesh);
+
+      // 5. Saturn & Rings
+      saturnGroup = new THREE.Group();
+      saturnGroup.position.set(-130, 95, -150);
+
+      const saturnGeo = new THREE.SphereGeometry(9.5, 20, 20);
+      const saturnMat = new THREE.MeshStandardMaterial({
+        color: 0xe2c792,
+        roughness: 0.75,
+        metalness: 0.25,
+        fog: false
+      });
+      const saturnPlanet = new THREE.Mesh(saturnGeo, saturnMat);
+      saturnGroup.add(saturnPlanet);
+
+      const ringGeo = new THREE.RingGeometry(11.5, 21.0, 36);
+      ringGeo.rotateX(Math.PI / 2);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0xc29e6b,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.88,
+        fog: false
+      });
+      const rings = new THREE.Mesh(ringGeo, ringMat);
+      saturnGroup.add(rings);
+
+      scene.add(saturnGroup);
+
+      // 6. Glowing Spiral Galaxy
+      const galCount = 1100;
+      const galGeo = new THREE.BufferGeometry();
+      const galPos = new Float32Array(galCount * 3);
+      const galColors = [];
+      const arms = 2;
+      const colCore = new THREE.Color(0xffe6cc);
+      const colArm = new THREE.Color(0xd19fe8);
+
+      for (let i = 0; i < galCount; i++) {
+        const r = Math.random() * 32;
+        const armIdx = i % arms;
+        const theta = (armIdx / arms) * Math.PI * 2 + (r * 0.16) + (Math.random() - 0.5) * 0.38;
+
+        const x = r * Math.sin(theta);
+        const z = r * Math.cos(theta);
+        const y = (Math.random() - 0.5) * 2.2 * (1.0 - r / 32.0);
+
+        galPos[i * 3] = x;
+        galPos[i * 3 + 1] = y;
+        galPos[i * 3 + 2] = z;
+
+        const mix = colCore.clone().lerp(colArm, r / 32.0);
+        galColors.push(mix.r, mix.g, mix.b);
+      }
+      galGeo.setAttribute('position', new THREE.BufferAttribute(galPos, 3));
+      galGeo.setAttribute('color', new THREE.Float32BufferAttribute(galColors, 3));
+
+      const galMat = new THREE.PointsMaterial({
+        size: 0.65,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        fog: false
+      });
+      galaxyParticles = new THREE.Points(galGeo, galMat);
+      galaxyParticles.position.set(120, 105, -140);
+      galaxyParticles.rotation.x = 0.55;
+      scene.add(galaxyParticles);
+    }
+
+    function buildGround() {
+      const geo = new THREE.PlaneGeometry(220, 220, 64, 64);
+      const pos = geo.attributes.position;
+      const colors = [];
+
+      const colBase = new THREE.Color(0x05120a); // dark damp peat
+      const colGrass = new THREE.Color(0x0f2f18); // forest moss
+      const colBright = new THREE.Color(0x275a32); // glowing patch
+
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i), z = pos.getZ(i);
+        const y = getTerrainHeight(x, z);
+        pos.setY(i, y);
+
+        // Vertex coloring based on height and noise
+        const noise = Math.sin(x * 0.5) * Math.cos(z * 0.5) * 0.2;
+        const h = (y + 3.5) / 7.0 + noise; // normalized height roughly
+        const finalColor = colBase.clone().lerp(colGrass, Math.max(0, Math.min(1, h))).lerp(colBright, Math.max(0, Math.min(1, h * h)));
+        colors.push(finalColor.r, finalColor.g, finalColor.b);
+      }
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+      geo.computeVertexNormals();
+
+      const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.95,
+        metalness: 0.05
+      }));
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.receiveShadow = true;
+      scene.add(mesh);
+    }
+
+    function buildPath() {
+      // Organic winding path of stone pavers
+      const mat = new THREE.MeshStandardMaterial({ color: 0x3d3f3c, roughness: 0.9, metalness: 0.1 });
+      for (let x = -55; x < 60; x += 3.5) {
+        const zOffset = Math.sin(x * 0.1) * 2.0; // Winding path curve
+        const y = getTerrainHeight(x, zOffset) + 0.03;
+
+        const size = 1.3 + Math.random() * 0.6;
+        const stoneGeo = new THREE.BoxGeometry(size, 0.08, size * (0.8 + Math.random() * 0.4));
+
+        // Jitter vertex positions for rocky feel
+        const pos = stoneGeo.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+          pos.setX(i, pos.getX(i) + (Math.random() - 0.5) * 0.06);
+          pos.setZ(i, pos.getZ(i) + (Math.random() - 0.5) * 0.06);
+        }
+        stoneGeo.computeVertexNormals();
+
+        const stone = new THREE.Mesh(stoneGeo, mat);
+        stone.position.set(x, y, zOffset + (Math.random() - 0.5) * 0.7);
+        stone.rotation.y = Math.random() * Math.PI;
+        stone.rotation.x = (Math.random() - 0.5) * 0.1;
+        stone.rotation.z = (Math.random() - 0.5) * 0.1;
+        stone.receiveShadow = true;
+        scene.add(stone);
+      }
+    }
+
+    function buildWater() {
+      const geo = new THREE.PlaneGeometry(60, 24, 15, 10);
+      const pos = geo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        pos.setZ(i, Math.sin(pos.getX(i) * 0.55) * 0.12);
+      }
+      geo.computeVertexNormals();
+
+      const mat = new THREE.MeshStandardMaterial({
+        color: 0x0a2b1f,
+        roughness: 0.15,
+        metalness: 0.85,
+        transparent: true,
+        opacity: 0.88,
+        flatShading: true
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.position.set(5, -1.2, -42);
+      scene.add(mesh);
+
+      // Glowing water pointlight
+      const pl = new THREE.PointLight(0x47dcb0, 1.2, 18);
+      pl.position.set(5, 0.5, -42);
+      scene.add(pl);
+    }
+
+    function buildGodRays() {
+      const rayGeo = new THREE.CylinderGeometry(0.15, 3.8, 48, 12, 1, true);
+      const rayMat = new THREE.MeshBasicMaterial({
+        color: 0xe4c275,
+        transparent: true,
+        opacity: 0.05,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      for (let i = 0; i < 7; i++) {
+        const ray = new THREE.Mesh(rayGeo, rayMat);
+        const rx = -50 + Math.random() * 100;
+        const rz = -25 + Math.random() * 50;
+        ray.position.set(rx, 24 + getTerrainHeight(rx, rz), rz);
+        ray.rotation.z = 0.28 + Math.random() * 0.12; // tilted sunbeams
+        ray.rotation.x = (Math.random() - 0.5) * 0.1;
+        scene.add(ray);
+      }
+    }
+
+    let sporeParticles;
+    const sporeCount = 650;
+    const sporeSpeeds = [];
+
+    function buildSpores() {
+      const geo = new THREE.BufferGeometry();
+      const pos = new Float32Array(sporeCount * 3);
+      for (let i = 0; i < sporeCount; i++) {
+        pos[i * 3] = (Math.random() - 0.5) * 150;
+        pos[i * 3 + 1] = Math.random() * 16;
+        pos[i * 3 + 2] = (Math.random() - 0.5) * 75;
+
+        sporeSpeeds.push({
+          x: (Math.random() - 0.5) * 0.45,
+          y: 0.16 + Math.random() * 0.32,
+          z: (Math.random() - 0.5) * 0.45,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+
+      const mat = new THREE.PointsMaterial({
+        color: 0xe4c275,
+        size: 0.12,
+        transparent: true,
+        opacity: 0.65,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+
+      sporeParticles = new THREE.Points(geo, mat);
+      scene.add(sporeParticles);
+    }
+
+    function animateSpores(dt, t) {
+      if (!sporeParticles) return;
+      const pos = sporeParticles.geometry.attributes.position.array;
+      for (let i = 0; i < sporeCount; i++) {
+        const speed = sporeSpeeds[i];
+        pos[i * 3 + 1] -= speed.y * dt;
+        if (pos[i * 3 + 1] < 0) {
+          pos[i * 3 + 1] = 16;
+          pos[i * 3] = (Math.random() - 0.5) * 150;
+          pos[i * 3 + 2] = (Math.random() - 0.5) * 75;
+        }
+        pos[i * 3] += Math.sin(t * 0.8 + speed.phase) * 0.15 * dt + speed.x * dt;
+        pos[i * 3 + 2] += Math.cos(t * 0.6 + speed.phase) * 0.15 * dt + speed.z * dt;
+      }
+      sporeParticles.geometry.attributes.position.needsUpdate = true;
+    }
+
+    function buildAncientOak(x, z, scale = 1.0) {
+      const y = getTerrainHeight(x, z);
+      const group = new THREE.Group();
+      group.position.set(x, y - 0.15, z);
+
+      const trunkH = (7 + Math.random() * 3.5) * scale;
+      const trunkGeo = new THREE.CylinderGeometry(0.24 * scale, 0.78 * scale, trunkH, 8);
+      const trunkMat = new THREE.MeshStandardMaterial({ color: 0x22150a, roughness: 0.98 });
+
+      // Make trunk twisty
+      const pos = trunkGeo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const vy = pos.getY(i);
+        const offset = Math.sin(vy * 0.5) * 0.28 * scale;
+        pos.setX(i, pos.getX(i) + offset);
+        pos.setZ(i, pos.getZ(i) + Math.cos(vy * 0.4) * 0.18 * scale);
+      }
+      trunkGeo.computeVertexNormals();
+
+      const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+      trunk.position.y = trunkH / 2;
+      trunk.castShadow = true;
+      trunk.receiveShadow = true;
+      group.add(trunk);
+
+      // Branches & Leaves
+      const branchMat = new THREE.MeshStandardMaterial({ color: 0x22150a, roughness: 0.98 });
+      const numBranches = 3 + Math.floor(Math.random() * 2);
+      for (let i = 0; i < numBranches; i++) {
+        const bH = (3.2 + Math.random() * 2.2) * scale;
+        const bGeo = new THREE.CylinderGeometry(0.12 * scale, 0.24 * scale, bH, 5);
+        const bMesh = new THREE.Mesh(bGeo, branchMat);
+
+        const branchAngle = (i / numBranches) * Math.PI * 2 + Math.random() * 0.35;
+        const startH = trunkH * (0.4 + Math.random() * 0.38);
+        bMesh.position.set(0, startH, 0);
+        bMesh.rotation.z = 0.65 + Math.random() * 0.4;
+        bMesh.rotation.y = branchAngle;
+        bMesh.translateY(bH / 2);
+        bMesh.castShadow = true;
+        group.add(bMesh);
+
+        // Canopy cluster
+        const fSize = (2.2 + Math.random() * 1.3) * scale;
+        const fGeo = new THREE.SphereGeometry(fSize, 6, 6);
+        const fMat = new THREE.MeshStandardMaterial({
+          color: 0x0f2d15 + (Math.random() < 0.5 ? 0x030802 : 0),
+          roughness: 0.85
+        });
+        const foliage = new THREE.Mesh(fGeo, fMat);
+        foliage.position.copy(bMesh.position);
+        foliage.translateY(bH / 2);
+        foliage.scale.set(1.3, 0.75, 1.3); // squashed sphere canopy
+        foliage.castShadow = true;
+        foliage.name = 'foliage';
+        group.add(foliage);
+      }
+
+      // Top canopy
+      const fGeoTop = new THREE.SphereGeometry(2.8 * scale, 6, 6);
+      const fMatTop = new THREE.MeshStandardMaterial({ color: 0x0b2210, roughness: 0.85 });
+      const foliageTop = new THREE.Mesh(fGeoTop, fMatTop);
+      foliageTop.position.set(0, trunkH, 0);
+      foliageTop.scale.set(1.2, 0.75, 1.2);
+      foliageTop.castShadow = true;
+      foliageTop.name = 'foliage';
+      group.add(foliageTop);
+
+      scene.add(group);
+    }
+
+    function buildGlowingMushroom(x, z) {
+      const y = getTerrainHeight(x, z);
+      const group = new THREE.Group();
+      group.position.set(x, y, z);
+
+      // Stem
+      const stemMat = new THREE.MeshStandardMaterial({ color: 0xdce2dd, roughness: 0.75 });
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.07, 0.5, 6), stemMat);
+      stem.position.y = 0.25;
+      group.add(stem);
+
+      // Cap
+      const colors = [0x47dcb0, 0xe4c275, 0xc084fc, 0x00bfff];
+      const mColor = colors[Math.floor(Math.random() * colors.length)];
+      const capMat = new THREE.MeshStandardMaterial({
+        color: mColor,
+        emissive: mColor,
+        emissiveIntensity: 0.85,
+        roughness: 0.15
+      });
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), capMat);
+      cap.position.y = 0.48;
+      cap.scale.y = 0.55;
+      group.add(cap);
+
+      // Light
+      const pl = new THREE.PointLight(mColor, 0.9, 3);
+      pl.position.y = 0.48;
+      group.add(pl);
+
+      scene.add(group);
+    }
+
+    function buildTrees() {
+      // Create Ancient Great Oaks
+      const spots = [
+        [-15, -12], [15, -12], [-22, -18], [22, -18], [-8, 12], [8, 12],
+        [-25, 8], [25, 8], [-32, -8], [32, -8], [-5, -20], [5, -20],
+        [-38, 15], [38, 15], [0, 24], [-45, 0], [45, 0], [-42, 6], [42, -6],
+        [-30, 10], [30, 10], [-36, -10], [36, -10]
+      ];
+      spots.forEach(([x, z]) => {
+        buildAncientOak(x, z, 0.9 + Math.random() * 0.3);
+      });
+
+      // Build Glowing mushrooms near the pathway
+      const mushSpots = [
+        [-22, 2.5], [-16, -2.5], [-9, 2.3], [-3, -2.4], [3, 2.4], [10, -2.5], [17, 2.5], [26, -2.4], [32, 2.3]
+      ];
+      mushSpots.forEach(([x, z]) => {
+        buildGlowingMushroom(x, z);
+      });
+
+      // Rocks
+      const rockSpots = [
+        [12, 6], [-12, -6], [0, -12], [18, -3], [-18, 3], [-28, 4], [28, -4]
+      ];
+      rockSpots.forEach(([x, z]) => {
+        const ry = getTerrainHeight(x, z);
+        const rGeo = new THREE.DodecahedronGeometry(0.55 + Math.random() * 0.5);
+        const rMat = new THREE.MeshStandardMaterial({ color: 0x3d3f3c, roughness: 0.9 });
+        const rock = new THREE.Mesh(rGeo, rMat);
+        rock.position.set(x, ry + 0.15, z);
+        rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+        rock.castShadow = true;
+        rock.receiveShadow = true;
+        scene.add(rock);
+      });
+    }
+
+    function buildClouds() {
+      for (let i = 0; i < 18; i++) {
+        const g = new THREE.Group();
+        const n = 3 + Math.floor(Math.random() * 4);
+        for (let j = 0; j < n; j++) {
+          const s = new THREE.Mesh(
+            new THREE.SphereGeometry(1.5 + Math.random() * 1.5, 7, 5),
+            new THREE.MeshStandardMaterial({ color: 0x112117, roughness: 0.95, transparent: true, opacity: 0.35 })
+          );
+          s.position.set(j * 2.8, Math.random() * 1.2, Math.random() * 1.5);
+          g.add(s);
+        }
+        g.position.set((Math.random() - 0.5) * 150, 15 + Math.random() * 10, (Math.random() - 0.5) * 70);
+        g.userData.type = 'cloud';
+        g.userData.speed = 0.2 + Math.random() * 0.3;
+        scene.add(g);
+      }
+    }
+
+    function buildBirds() {
+      for (let i = 0; i < 20; i++) {
+        const g = new THREE.Group();
+        [-0.28, 0.28].forEach((bx, idx) => {
+          const w = new THREE.Mesh(
+            new THREE.BoxGeometry(0.28, 0.04, 0.12),
+            new THREE.MeshBasicMaterial({ color: 0x050e09 })
+          );
+          w.position.x = bx; w.name = idx === 0 ? 'L' : 'R';
+          g.add(w);
+        });
+        g.position.set((Math.random() - 0.5) * 120, 12 + Math.random() * 10, (Math.random() - 0.5) * 60);
+        g.userData.type = 'bird';
+        g.userData.speed = 1.6 + Math.random() * 2.0;
+        scene.add(g);
+      }
+    }
+
+    function buildFireflies() {
+      for (let i = 0; i < 14; i++) {
+        const fl = new THREE.PointLight(0xe4c275, 0.65, 6);
+        fl.position.set((Math.random() - 0.5) * 55, 0.8 + Math.random() * 2.5, (Math.random() - 0.5) * 25);
+        fl.userData.type = 'firefly';
+        fl.userData.off = Math.random() * Math.PI * 2;
+
+        // tiny glowing bulb mesh
+        const bulb = new THREE.Mesh(
+          new THREE.SphereGeometry(0.06, 6, 4),
+          new THREE.MeshBasicMaterial({ color: 0xe4c275 })
+        );
+        fl.add(bulb);
+        scene.add(fl);
+      }
+    }
+
+    function buildCharacter() {
+      character = new THREE.Group();
+
+      // Materials for the detailed spacesuit
+      const suitMat = new THREE.MeshStandardMaterial({ color: 0xf3f3f3, roughness: 0.8, metalness: 0.1 }); // White space suit fabric
+      const visorMat = new THREE.MeshStandardMaterial({ color: 0xffb300, roughness: 0.08, metalness: 1.0 }); // Gold reflective visor
+      const sealMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9 }); // Dark joints / seal rings
+      const metalMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.2, metalness: 0.8 }); // Silver metal highlights
+      const redMat = new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.5 }); // Red warning details / stripes
+      const blueMat = new THREE.MeshStandardMaterial({ color: 0x1976d2, roughness: 0.5 }); // Blue mission details / stripes
+      const bootMat = new THREE.MeshStandardMaterial({ color: 0x2e2e2e, roughness: 0.7 }); // Dark space boots/gloves
+
+      // Helper helper to add mesh to a parent group
+      const createMesh = (geo, mat, px, py, pz, parent, name) => {
+        const m = new THREE.Mesh(geo, mat);
+        m.position.set(px, py, pz);
+        if (name) m.name = name;
+        m.castShadow = true;
+        m.receiveShadow = true;
+        parent.add(m);
+        return m;
+      };
+
+      // 1. Torso & Life Support System (Backpack)
+      const chest = createMesh(new THREE.CylinderGeometry(0.24, 0.20, 0.56, 10), suitMat, 0, 0.90, 0, character, 'torso');
+
+      // Create texture for Prameesh name tag on the chest
+      const nameCanvas = document.createElement('canvas');
+      nameCanvas.width = 256;
+      nameCanvas.height = 64;
+      const nameCtx = nameCanvas.getContext('2d');
+      // Dark slate/charcoal background
+      nameCtx.fillStyle = '#08140e';
+      nameCtx.fillRect(0, 0, 256, 64);
+      // Sleek gold border
+      nameCtx.strokeStyle = '#e4c275';
+      nameCtx.lineWidth = 4;
+      nameCtx.strokeRect(2, 2, 252, 60);
+      // Premium clean typography
+      nameCtx.font = 'bold 30px "Inter", sans-serif';
+      nameCtx.fillStyle = '#e4c275';
+      nameCtx.textAlign = 'center';
+      nameCtx.textBaseline = 'middle';
+      // Glowing text shadow
+      nameCtx.shadowColor = '#e4c275';
+      nameCtx.shadowBlur = 8;
+      nameCtx.fillText('PRAMEESH', 128, 32);
+
+      const nameTexture = new THREE.CanvasTexture(nameCanvas);
+      const badgeGeo = new THREE.BoxGeometry(0.14, 0.042, 0.015);
+      const badgeMatArray = [
+        metalMat, // right
+        metalMat, // left
+        metalMat, // top
+        metalMat, // bottom
+        new THREE.MeshBasicMaterial({ map: nameTexture }), // front (glowing basic mat so it's readable in the forest)
+        metalMat  // back
+      ];
+      const badgeMesh = new THREE.Mesh(badgeGeo, badgeMatArray);
+      badgeMesh.position.set(0, 0.16, 0.24); // upper chest front
+      badgeMesh.castShadow = true;
+      badgeMesh.receiveShadow = true;
+      chest.add(badgeMesh);
+
+      // Chest Control Panel Unit
+      const ctrlPanel = createMesh(new THREE.BoxGeometry(0.15, 0.15, 0.06), sealMat, 0, 0.96, 0.21, character);
+      createMesh(new THREE.SphereGeometry(0.02, 4, 4), redMat, -0.04, 0.99, 0.25, character);
+      createMesh(new THREE.SphereGeometry(0.02, 4, 4), blueMat, 0.04, 0.99, 0.25, character);
+
+      // PLSS Backpack (Primary Life Support System)
+      const backpack = createMesh(new THREE.BoxGeometry(0.36, 0.52, 0.22), suitMat, 0, 0.90, -0.22, character);
+      // Backpack nozzles and details
+      createMesh(new THREE.CylinderGeometry(0.04, 0.04, 0.12, 6), metalMat, -0.09, 1.18, -0.22, character);
+      createMesh(new THREE.CylinderGeometry(0.04, 0.04, 0.12, 6), metalMat, 0.09, 1.18, -0.22, character);
+
+      // Red & Blue mission shoulder patches
+      createMesh(new THREE.CylinderGeometry(0.092, 0.092, 0.02, 8), redMat, -0.25, 1.15, 0, character).rotation.z = Math.PI / 2;
+      createMesh(new THREE.CylinderGeometry(0.092, 0.092, 0.02, 8), blueMat, 0.25, 1.15, 0, character).rotation.z = Math.PI / 2;
+
+      // 2. Helmet & Gold Visor
+      // Neck ring seal
+      createMesh(new THREE.CylinderGeometry(0.17, 0.17, 0.07, 10), sealMat, 0, 1.22, 0, character);
+
+      // Helmet dome group
+      const headGroup = new THREE.Group();
+      headGroup.position.set(0, 1.42, 0);
+      headGroup.name = 'head';
+      character.add(headGroup);
+
+      // White helmet shell
+      createMesh(new THREE.SphereGeometry(0.26, 16, 12), suitMat, 0, 0, 0, headGroup, 'helmet');
+
+      // Reflective gold visor (squashed sphere)
+      const visor = createMesh(new THREE.SphereGeometry(0.20, 14, 10), visorMat, 0, 0.02, 0.09, headGroup);
+      visor.scale.set(1.15, 0.85, 0.8);
+
+      // Visor frame border
+      const visorBorder = createMesh(new THREE.TorusGeometry(0.20, 0.02, 8, 18, Math.PI * 1.1), sealMat, 0, 0.02, 0.08, headGroup);
+      visorBorder.rotation.x = Math.PI / 2;
+
+      // Oxygen Hose (backpack to chest panel)
+      const hoseGeo = new THREE.TorusGeometry(0.18, 0.025, 6, 14, Math.PI);
+      const hose = createMesh(hoseGeo, sealMat, -0.16, 0.95, 0.02, character);
+      hose.rotation.y = Math.PI / 2;
+      hose.rotation.z = 0.35;
+
+      // 3. Padded Spacesuit Arms
+      // Left Arm Group (Shoulder Joint)
+      const armL = new THREE.Group();
+      armL.position.set(-0.32, 1.12, 0);
+      armL.name = 'armL';
+      character.add(armL);
+      // Upper Arm sleeve
+      createMesh(new THREE.CylinderGeometry(0.08, 0.07, 0.26, 8), suitMat, 0, -0.13, 0, armL);
+      // Shoulder joint ring
+      createMesh(new THREE.SphereGeometry(0.065, 8, 8), sealMat, 0, -0.26, 0, armL);
+      // Forearm Group (Elbow Joint)
+      const forearmL = new THREE.Group();
+      forearmL.position.set(0, -0.26, 0);
+      forearmL.name = 'forearmL';
+      armL.add(forearmL);
+      // Forearm sleeve
+      createMesh(new THREE.CylinderGeometry(0.07, 0.06, 0.26, 8), suitMat, 0, -0.13, 0, forearmL);
+      // Blue band detail at cuff
+      createMesh(new THREE.CylinderGeometry(0.062, 0.052, 0.04, 8), blueMat, 0, -0.23, 0, forearmL);
+      // Space Glove (Hand)
+      createMesh(new THREE.SphereGeometry(0.06, 8, 8), bootMat, 0, -0.28, 0, forearmL);
+
+      // Right Arm Group (Shoulder Joint)
+      const armR = new THREE.Group();
+      armR.position.set(0.32, 1.12, 0);
+      armR.name = 'armR';
+      character.add(armR);
+      // Upper Arm sleeve
+      createMesh(new THREE.CylinderGeometry(0.08, 0.07, 0.26, 8), suitMat, 0, -0.13, 0, armR);
+      // Shoulder joint ring
+      createMesh(new THREE.SphereGeometry(0.065, 8, 8), sealMat, 0, -0.26, 0, armR);
+      // Forearm Group (Elbow Joint)
+      const forearmR = new THREE.Group();
+      forearmR.position.set(0, -0.26, 0);
+      forearmR.name = 'forearmR';
+      armR.add(forearmR);
+      // Forearm sleeve
+      createMesh(new THREE.CylinderGeometry(0.07, 0.06, 0.26, 8), suitMat, 0, -0.13, 0, forearmR);
+      // Red band detail at cuff
+      createMesh(new THREE.CylinderGeometry(0.062, 0.052, 0.04, 8), redMat, 0, -0.23, 0, forearmR);
+      // Space Glove (Hand)
+      createMesh(new THREE.SphereGeometry(0.06, 8, 8), bootMat, 0, -0.28, 0, forearmR);
+
+      // 4. Thick Spacesuit Legs
+      // Left Leg Group (Hip Joint)
+      const legL = new THREE.Group();
+      legL.position.set(-0.14, 0.58, 0);
+      legL.name = 'legL';
+      character.add(legL);
+      // Thigh sleeve
+      createMesh(new THREE.CylinderGeometry(0.11, 0.09, 0.32, 8), suitMat, 0, -0.16, 0, legL);
+      // Knee joint ring
+      createMesh(new THREE.SphereGeometry(0.09, 8, 8), sealMat, 0, -0.32, 0, legL);
+      // Shin Group (Knee Joint)
+      const shinL = new THREE.Group();
+      shinL.position.set(0, -0.32, 0);
+      shinL.name = 'shinL';
+      legL.add(shinL);
+      // Shin sleeve
+      createMesh(new THREE.CylinderGeometry(0.095, 0.08, 0.32, 8), suitMat, 0, -0.16, 0, shinL);
+      // Thick Space Boot (Foot)
+      createMesh(new THREE.BoxGeometry(0.11, 0.085, 0.23), bootMat, 0, -0.36, 0.04, shinL);
+
+      // Right Leg Group (Hip Joint)
+      const legR = new THREE.Group();
+      legR.position.set(0.14, 0.58, 0);
+      legR.name = 'legR';
+      character.add(legR);
+      // Thigh sleeve
+      createMesh(new THREE.CylinderGeometry(0.11, 0.09, 0.32, 8), suitMat, 0, -0.16, 0, legR);
+      // Knee joint ring
+      createMesh(new THREE.SphereGeometry(0.09, 8, 8), sealMat, 0, -0.32, 0, legR);
+      // Shin Group (Knee Joint)
+      const shinR = new THREE.Group();
+      shinR.position.set(0, -0.32, 0);
+      shinR.name = 'shinR';
+      legR.add(shinR);
+      // Shin sleeve
+      createMesh(new THREE.CylinderGeometry(0.095, 0.08, 0.32, 8), suitMat, 0, -0.16, 0, shinR);
+      // Thick Space Boot (Foot)
+      createMesh(new THREE.BoxGeometry(0.11, 0.085, 0.23), bootMat, 0, -0.36, 0.04, shinR);
+
+      // Set character base position on terrain
+      character.position.set(-30, getTerrainHeight(-30, 0), 0);
+      scene.add(character);
+    }
+
+    function createFloatingText(text, colorHex) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+
+      ctx.clearRect(0, 0, 512, 128);
+
+      const colorStr = "#" + colorHex.toString(16).padStart(6, '0');
+
+      ctx.font = 'bold 50px "Cinzel", Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Neon glow settings
+      ctx.shadowColor = colorStr;
+      ctx.shadowBlur = 18;
+
+      // Glowing border outline
+      ctx.strokeStyle = colorStr;
+      ctx.lineWidth = 6;
+      ctx.strokeText(text.toUpperCase(), 256, 64);
+
+      // High contrast crisp fill
+      ctx.shadowBlur = 4;
+      ctx.fillStyle = '#fffdf0';
+      ctx.fillText(text.toUpperCase(), 256, 64);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      const mat = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        depthWrite: false,
+        fog: false
+      });
+
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(5.5, 1.375, 1.0);
+      return sprite;
+    }
+
+    function buildZones() {
+      const defs = [
+        { key: 'profile', pos: [-25, 0] },
+        { key: 'skills', pos: [-10, 0] },
+        { key: 'experience', pos: [5, 0] },
+        { key: 'projects', pos: [20, 0] },
+        { key: 'education', pos: [35, 0] }
+      ];
+      defs.forEach(({ key, pos }) => {
+        const d = ZONE_DATA[key];
+        const g = new THREE.Group();
+
+        const y = getTerrainHeight(pos[0], pos[1]);
+        g.position.set(pos[0], y, pos[1]);
+
+        // Base platform
+        const base = new THREE.Mesh(
+          new THREE.CylinderGeometry(2.0, 2.2, 0.25, 12),
+          new THREE.MeshStandardMaterial({ color: 0x1d211a, roughness: 0.95 })
+        );
+        base.position.y = 0.125; base.receiveShadow = true; g.add(base);
+
+        // Monolith Side Columns
+        const stoneMat = new THREE.MeshStandardMaterial({ color: 0x3d3f3c, roughness: 0.9 });
+        const leftCol = new THREE.Mesh(new THREE.BoxGeometry(0.35, 3.8, 0.35), stoneMat);
+        leftCol.position.set(-0.95, 1.9, 0);
+        leftCol.castShadow = true; leftCol.receiveShadow = true;
+        g.add(leftCol);
+
+        const rightCol = new THREE.Mesh(new THREE.BoxGeometry(0.35, 3.8, 0.35), stoneMat);
+        rightCol.position.set(0.95, 1.9, 0);
+        rightCol.castShadow = true; rightCol.receiveShadow = true;
+        g.add(rightCol);
+
+        // Monolith Lintel Top Stone
+        const lintel = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.35, 0.45), stoneMat);
+        lintel.position.set(0, 3.9, 0);
+        lintel.rotation.z = (Math.random() - 0.5) * 0.05; // slight organic rot
+        lintel.castShadow = true; lintel.receiveShadow = true;
+        g.add(lintel);
+
+        // Floating Relic Orb
+        const orb = new THREE.Mesh(
+          new THREE.SphereGeometry(0.48, 12, 10),
+          new THREE.MeshStandardMaterial({
+            color: d.color, emissive: d.color, emissiveIntensity: 1.0,
+            roughness: 0.1, transparent: true, opacity: 0.95
+          })
+        );
+        orb.position.y = 2.0; orb.name = 'orb'; g.add(orb);
+
+        // Runic Ring
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(0.85, 0.055, 8, 24),
+          new THREE.MeshStandardMaterial({
+            color: d.color, emissive: d.color, emissiveIntensity: 1.2
+          })
+        );
+        ring.position.y = 2.0; ring.rotation.x = Math.PI / 4; ring.name = 'ring'; g.add(ring);
+
+        // Glow light
+        const pl = new THREE.PointLight(d.color, 2.2, 10);
+        pl.position.y = 2.0; g.add(pl);
+
+        // Floating Neon Label Sprite
+        const label = createFloatingText(d.title, d.color);
+        label.position.set(0, 4.9, 0);
+        g.add(label);
+
+        scene.add(g);
+
+        // Match standard position
+        zones.push({ key, group: g, pos: new THREE.Vector3(pos[0], y, pos[1]), data: d });
+      });
+    }
+
+    // ─── Events ─────────────────────────────────────────────────────────────────
+    function setupEvents() {
+      window.addEventListener('keydown', e => {
+        const k = e.key.toLowerCase();
+        if (k === 'w' || k === 'arrowup') keys.w = true;
+        if (k === 'a' || k === 'arrowleft') keys.a = true;
+        if (k === 's' || k === 'arrowdown') keys.s = true;
+        if (k === 'd' || k === 'arrowright') keys.d = true;
+        if (k === 'e') tryInteract();
+        if (k === 'escape') closePanel();
+        if (e.key === ' ' || e.code === 'Space') {
+          e.preventDefault();
+          keys.space = true;
+        }
+      });
+      window.addEventListener('keyup', e => {
+        const k = e.key.toLowerCase();
+        if (k === 'w' || k === 'arrowup') keys.w = false;
+        if (k === 'a' || k === 'arrowleft') keys.a = false;
+        if (k === 's' || k === 'arrowdown') keys.s = false;
+        if (k === 'd' || k === 'arrowright') keys.d = false;
+        if (e.key === ' ' || e.code === 'Space') {
+          keys.space = false;
+        }
+      });
+      window.addEventListener('mousedown', e => { isDragging = true; lastMX = e.clientX; lastMY = e.clientY; });
+      window.addEventListener('mouseup', () => isDragging = false);
+      window.addEventListener('mousemove', e => {
+        if (isDragging && !panelOpen) {
+          camAngleH -= (e.clientX - lastMX) * 0.007;
+          camAngleV += (e.clientY - lastMY) * 0.005; // vertical rotation
+          camAngleV = Math.max(-0.35, Math.min(0.85, camAngleV)); // clamp pitch
+          lastMX = e.clientX;
+          lastMY = e.clientY;
+        }
+      });
+      window.addEventListener('touchstart', e => { isDragging = true; lastMX = e.touches[0].clientX; lastMY = e.touches[0].clientY; }, { passive: true });
+      window.addEventListener('touchend', () => isDragging = false);
+      window.addEventListener('touchmove', e => {
+        if (isDragging && !panelOpen) {
+          camAngleH -= (e.touches[0].clientX - lastMX) * 0.007;
+          camAngleV += (e.touches[0].clientY - lastMY) * 0.005;
+          camAngleV = Math.max(-0.35, Math.min(0.85, camAngleV));
+          lastMX = e.touches[0].clientX;
+          lastMY = e.touches[0].clientY;
+        }
+      }, { passive: true });
+      window.addEventListener('resize', () => {
+        camera.aspect = innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(innerWidth, innerHeight);
+      });
+    }
+
+    // ─── UI helpers ─────────────────────────────────────────────────────────────
+    function showTooltip(txt) {
+      const el = document.getElementById('tooltip');
+      el.textContent = txt; el.classList.add('show');
+      clearTimeout(tooltipTimer);
+      tooltipTimer = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+    function tryInteract() { if (nearZone) openPanel(nearZone); }
+    function openPanel(zone) {
+      panelOpen = true;
+      document.getElementById('panel-content').innerHTML = zone.data.html;
+      document.getElementById('panel').classList.add('open');
+    }
+    function closePanel() {
+      panelOpen = false;
+      document.getElementById('panel').classList.remove('open');
+    }
+
+    // ─── Loop ────────────────────────────────────────────────────────────────────
+    let walkPhase = 0;
+    const _v3 = new THREE.Vector3();
+    const _camTarget = new THREE.Vector3();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = Math.min(clock.getDelta(), 0.05);
+      const t = clock.getElapsedTime();
+
+      // ── Jumping physics ──
+      if (keys.space && !isJumping) {
+        isJumping = true;
+        velocityY = jumpForce;
+        playChime(523.25); // Play C5 chime on jump
+      }
+
+      if (isJumping) {
+        velocityY += gravity * dt;
+        jumpOffset += velocityY * dt;
+        if (jumpOffset <= 0) {
+          jumpOffset = 0;
+          isJumping = false;
+          velocityY = 0;
+          playChime(329.63); // Play E4 chime on landing
+        }
+      }
+
+      // ── Movement ──
+      const fwd = new THREE.Vector3(-Math.sin(camAngleH), 0, -Math.cos(camAngleH));
+      const right = new THREE.Vector3(Math.cos(camAngleH), 0, -Math.sin(camAngleH));
+      _v3.set(0, 0, 0);
+      if (keys.w) _v3.addScaledVector(fwd, 1);
+      if (keys.s) _v3.addScaledVector(fwd, -1);
+      if (keys.a) _v3.addScaledVector(right, -1);
+      if (keys.d) _v3.addScaledVector(right, 1);
+
+      const moving = _v3.lengthSq() > 0;
+      if (moving) {
+        _v3.normalize().multiplyScalar(6.5 * dt);
+        character.position.add(_v3);
+        character.position.clamp(new THREE.Vector3(-55, -10, -28), new THREE.Vector3(55, 10, 28));
+        character.rotation.y = Math.atan2(_v3.x, _v3.z);
+        walkPhase += dt * 7.5;
+
+        // Periodically play a very soft stepping chime or rustle
+        if (Math.floor(walkPhase) % 8 === 0 && Math.random() < 0.08) {
+          playChime(220 + Math.random() * 220);
+        }
+      } else {
+        walkPhase = 0;
+      }
+
+      const terrainY = getTerrainHeight(character.position.x, character.position.z);
+      const bobbing = !isJumping && moving ? Math.abs(Math.sin(walkPhase)) * 0.12 : 0;
+      character.position.y = terrainY + jumpOffset + bobbing;
+
+      // ── Advanced Character Animations ──
+      const torso = character.getObjectByName('torso');
+      const head = character.getObjectByName('head');
+      const legL = character.getObjectByName('legL');
+      const legR = character.getObjectByName('legR');
+      const armL = character.getObjectByName('armL');
+      const armR = character.getObjectByName('armR');
+      const forearmL = character.getObjectByName('forearmL');
+      const forearmR = character.getObjectByName('forearmR');
+      const shinL = character.getObjectByName('shinL');
+      const shinR = character.getObjectByName('shinR');
+
+      if (isJumping) {
+        // Dynamic mid-air jump pose (bended knees, flared elbows)
+        if (legL) legL.rotation.x = -0.35;
+        if (legR) legR.rotation.x = 0.35;
+        if (armL) { armL.rotation.x = -0.6; armL.rotation.z = -0.45; }
+        if (armR) { armR.rotation.x = -0.6; armR.rotation.z = 0.45; }
+        if (forearmL) forearmL.rotation.x = -0.45;
+        if (forearmR) forearmR.rotation.x = -0.45;
+        if (shinL) shinL.rotation.x = 0.5;
+        if (shinR) shinR.rotation.x = 0.5;
+        if (torso) { torso.rotation.x = -0.06; torso.rotation.y = 0; torso.rotation.z = 0; }
+        if (head) head.rotation.x = 0.08;
+      } else {
+        // Advanced natural walk cycle (swaying hips, bouncing shoulders, swinging arms, bending knees & elbows)
+        const legRot = Math.sin(walkPhase) * (moving ? 0.48 : 0);
+        const armRot = Math.sin(walkPhase) * (moving ? 0.38 : 0);
+
+        if (legL) legL.rotation.x = legRot;
+        if (legR) legR.rotation.x = -legRot;
+        if (armL) {
+          armL.rotation.x = -armRot;
+          armL.rotation.z = -0.15 - Math.abs(Math.sin(walkPhase)) * 0.05 * (moving ? 1 : 0);
+        }
+        if (armR) {
+          armR.rotation.x = armRot;
+          armR.rotation.z = 0.15 + Math.abs(Math.sin(walkPhase)) * 0.05 * (moving ? 1 : 0);
+        }
+
+        // Elbow bending during swing
+        if (forearmL) forearmL.rotation.x = moving ? -0.25 - Math.sin(walkPhase) * 0.15 : -0.15;
+        if (forearmR) forearmR.rotation.x = moving ? -0.25 + Math.sin(walkPhase) * 0.15 : -0.15;
+
+        // Knee bending (knee flexes when leg goes backwards)
+        if (shinL) shinL.rotation.x = moving ? Math.max(0, -Math.sin(walkPhase) * 0.5) : 0.05;
+        if (shinR) shinR.rotation.x = moving ? Math.max(0, Math.sin(walkPhase) * 0.5) : 0.05;
+
+        // Hip and shoulder rotation
+        if (torso) {
+          torso.rotation.x = moving ? 0.08 : 0; // Forward lean
+          torso.rotation.y = Math.sin(walkPhase) * 0.06 * (moving ? 1 : 0); // Hip swing
+          torso.rotation.z = Math.cos(walkPhase * 2) * 0.02 * (moving ? 1 : 0); // Shoulder sway
+        }
+        if (head) {
+          head.rotation.x = moving ? -0.03 : 0;
+          head.rotation.y = Math.sin(walkPhase) * 0.03 * (moving ? 1 : 0);
+        }
+      }
+
+      // ── Camera ──
+      const radius = 9.5;
+      const hDist = radius * Math.cos(camAngleV);
+      const vDist = radius * Math.sin(camAngleV);
+
+      _camTarget.set(
+        character.position.x + Math.sin(camAngleH) * hDist,
+        character.position.y + 1.3 + vDist,
+        character.position.z + Math.cos(camAngleH) * hDist
+      );
+      camera.position.lerp(_camTarget, 0.095);
+      camera.lookAt(character.position.x, character.position.y + 1.3, character.position.z);
+
+      // ── Zone proximity & audio chime triggers ──
+      let closest = null, closestDist = 5.5;
+      zones.forEach(z => {
+        const d = character.position.distanceTo(z.pos);
+        if (d < closestDist) { closest = z; closestDist = d; }
+      });
+
+      const freqs = { profile: 329.63, skills: 392.00, experience: 440.00, projects: 523.25, education: 587.33 }; // E4, G4, A4, C5, D5
+      if (closest !== nearZone) {
+        nearZone = closest;
+        document.getElementById('zone-name').textContent = nearZone ? nearZone.data.title : 'Explore the Portfolio';
+        if (nearZone) {
+          showTooltip('Press E to explore ' + nearZone.data.title);
+          playChime(freqs[nearZone.key] || 440);
+        }
+      }
+
+      // ── Zone animations ──
+      zones.forEach((z, i) => {
+        const orb = z.group.getObjectByName('orb');
+        const ring = z.group.getObjectByName('ring');
+        const isNear = z === nearZone;
+        const bob = Math.sin(t * 1.5 + i * 1.2) * 0.15;
+        if (orb) {
+          orb.position.y = 2.0 + bob;
+          orb.material.emissiveIntensity = isNear ? 1.4 : 0.6;
+        }
+        if (ring) {
+          ring.position.y = 2.0 + bob;
+          ring.rotation.z += dt * (isNear ? 2.5 : 0.8);
+          ring.rotation.x += dt * 0.18;
+        }
+      });
+
+      // ── Foliage swaying in the wind ──
+      scene.traverse(child => {
+        if (child.name === 'foliage') {
+          child.rotation.x = Math.sin(t * 0.75 + child.parent.position.x) * 0.035;
+          child.rotation.z = Math.cos(t * 0.6 + child.parent.position.z) * 0.025;
+        }
+      });
+
+      // ── Spores/Pollen drift ──
+      animateSpores(dt, t);
+
+      // ── Environment animations ──
+      scene.children.forEach(c => {
+        if (c.userData.type === 'cloud') {
+          c.position.x += c.userData.speed * dt;
+          if (c.position.x > 90) c.position.x = -90;
+        }
+        if (c.userData.type === 'bird') {
+          c.position.x += c.userData.speed * dt;
+          c.position.y += Math.sin(t * 0.6 + c.position.z) * 0.008;
+          if (c.position.x > 90) c.position.x = -90;
+          const flap = Math.sin(t * 6 + c.userData.speed);
+          const wL = c.getObjectByName('L'); const wR = c.getObjectByName('R');
+          if (wL) wL.rotation.z = flap * 0.32;
+          if (wR) wR.rotation.z = -flap * 0.32;
+        }
+        if (c.userData.type === 'firefly') {
+          c.position.y = 1.4 + Math.sin(t * 1.3 + c.userData.off) * 0.55;
+          c.position.x += Math.sin(t * 0.6 + c.userData.off) * 0.015;
+          c.position.z += Math.cos(t * 0.4 + c.userData.off) * 0.015;
+          c.intensity = 0.25 + Math.abs(Math.sin(t * 2.5 + c.userData.off)) * 0.6;
+        }
+      });
+
+      // ── Space animations ──
+      if (earthMesh) earthMesh.rotation.y += dt * 0.015;
+      if (marsMesh) marsMesh.rotation.y += dt * 0.010;
+      if (saturnGroup) saturnGroup.rotation.y += dt * 0.008;
+      if (galaxyParticles) galaxyParticles.rotation.y += dt * 0.005;
+      if (moonMesh && earthMesh) {
+        const orbRad = 32;
+        const speed = 0.08;
+        moonMesh.position.x = earthMesh.position.x + Math.sin(t * speed) * orbRad;
+        moonMesh.position.z = earthMesh.position.z + Math.cos(t * speed) * orbRad;
+        moonMesh.rotation.y += dt * 0.02;
+      }
+
+      renderer.render(scene, camera);
+    }
+  </script>
 </body>
 
 </html>
